@@ -5,34 +5,56 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import httpStatus from 'http-status';
+import passport from 'passport';
+import session from 'express-session';
 
-// import { authRoutes } from './modules/auth/auth.routes';
+// Load environment variables
+dotenv.config();
+
+// Import routes
+import { authRoutes } from './modules/auth/auth.routes';
 // import { userRoutes } from './modules/user/user.routes';
 // import { storageRoutes } from './modules/storage/storage.routes';
-// // import other routes like folderRoutes, pdfRoutes, etc.
 
-// import { errorHandler } from './middlewares/error.middleware';
+// Import middlewares
+import { errorHandler } from './middlewares/error.middleware';
 
-dotenv.config();
+// Import Google Auth Strategy (must be before passport.initialize())
+import './modules/auth/googleAuth';
 
 const app: Application = express();
 
-// Middlewares
-app.use(cors());
+// Middleware
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || '*', // Frontend URL or allow all in dev
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan('dev'));
 
-// Routes
-// app.use('/api/auth', authRoutes);
+// Session for passport (required for Google OAuth)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'session_secret',
+    resave: false,
+    saveUninitialized: false,
+  })
+);
+app.use(express.json());
+
+// Initialize Passport
+app.use(passport.initialize());
+app.use(passport.session());
+
+// API Routes
+app.use('/api/auth', authRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/storage', storageRoutes);
-// app.use('/api/folders', folderRoutes);
-// app.use('/api/pdfs', pdfRoutes);
-// app.use('/api/images', imageRoutes);
-// app.use('/api/notes', noteRoutes);
 
-// Health check
+// Health check route
 app.get('/', (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,
@@ -40,7 +62,7 @@ app.get('/', (req: Request, res: Response) => {
   });
 });
 
-// Global Error Handler
-// app.use(errorHandler);
+// Global error handler
+app.use(errorHandler);
 
 export default app;
