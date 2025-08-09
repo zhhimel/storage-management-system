@@ -93,19 +93,22 @@ const verificationCodes: Record<string, string> = {}; // In-memory map (for test
 
 export const sendVerificationCode = async (req: Request, res: Response) => {
   const { email } = req.body;
+  console.log(email);
   const user = await User.findOne({ email });
 
-  if (!user) {
-    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
-  }
+  if (!user) throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
 
   const code = crypto.randomInt(100000, 999999).toString();
-  verificationCodes[email] = code;
+  const hashedCode = crypto.createHash('sha256').update(code).digest('hex');
+
+  user.resetCode = hashedCode;
+  user.resetCodeExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 min expiry
+  await user.save();
 
   await sendEmail({
     to: email,
     subject: 'Your Password Reset Code',
-    text: `Your verification code is: ${code}`,
+    text: `Your verification code is: ${code} (valid for 10 minutes)`,
   });
 
   res.status(httpStatus.OK).json({
@@ -114,19 +117,26 @@ export const sendVerificationCode = async (req: Request, res: Response) => {
   });
 };
 
+
 // ========== VERIFY CODE ==========
 export const verifyCode = async (req: Request, res: Response) => {
   const { email, code } = req.body;
+  const hashedCode = crypto.createHash('sha256').update(code).digest('hex');
 
-  if (verificationCodes[email] !== code) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid or expired code');
-  }
+  const user = await User.findOne({
+    email,
+    resetCode: hashedCode,
+    resetCodeExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid or expired code');
 
   res.status(httpStatus.OK).json({
     success: true,
     message: 'Verification code is valid',
   });
 };
+
 
 // ========== RESET PASSWORD ==========
 export const resetPassword = async (req: Request, res: Response) => {
@@ -136,21 +146,27 @@ export const resetPassword = async (req: Request, res: Response) => {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Passwords do not match');
   }
 
-  if (verificationCodes[email] !== code) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid or expired code');
-  }
+  const hashedCode = crypto.createHash('sha256').update(code).digest('hex');
 
-  const hashed = await bcrypt.hash(newPassword, 10);
-  await User.findOneAndUpdate({ email }, { password: hashed });
+  const user = await User.findOne({
+    email,
+    resetCode: hashedCode,
+    resetCodeExpires: { $gt: Date.now() },
+  });
 
-  // Clear code after use
-  delete verificationCodes[email];
+  if (!user) throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid or expired code');
+
+  user.password = await bcrypt.hash(newPassword, 10);
+  user.resetCode = undefined;
+  user.resetCodeExpiry = undefined;
+  await user.save();
 
   res.status(httpStatus.OK).json({
     success: true,
     message: 'Password has been reset successfully',
   });
 };
+
 
 // ========== GOOGLE SIGN-IN (Placeholder) ==========
 export const googleSignIn = async (req: Request, res: Response) => {

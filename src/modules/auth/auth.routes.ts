@@ -2,7 +2,7 @@
 import express from 'express';
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
-import { registerUser, loginUser } from './auth.controller';
+import { registerUser, loginUser,sendVerificationCode,resetPassword,verifyCode} from './auth.controller';
 import '../auth/googleAuth'; // Initialize Google strategy
 
 const router = express.Router();
@@ -31,5 +31,9 @@ router.get(
     res.redirect(`http://localhost:3000?token=${token}`);
   }
 );
+
+router.post("/forgot-password", sendVerificationCode);
+router.post("/verify-code", verifyCode);
+router.post("/reset-password", resetPassword);
 
 export const authRoutes = router;

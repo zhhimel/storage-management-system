@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IUser extends Document {
-  _id: Types.ObjectId; // ✅ now _id has a known type
+  _id: Types.ObjectId;
   username: string;
   email: string;
   password: string;
   image?: string;
+  resetCode?: string; // ✅ for password reset
+  resetCodeExpiry?: Date; // ✅ optional: to expire the code
   createdAt: Date;
   updatedAt: Date;
 }
@@ -16,6 +18,8 @@ const userSchema: Schema<IUser> = new Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     image: { type: String, default: '' },
+    resetCode: { type: String }, // ✅ schema field
+    resetCodeExpiry: { type: Date }, // ✅ optional expiry
   },
   { timestamps: true }
 );
