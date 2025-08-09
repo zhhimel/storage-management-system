@@ -13,13 +13,15 @@ dotenv.config();
 
 // Import routes
 import { authRoutes } from './modules/auth/auth.routes';
-// import { userRoutes } from './modules/user/user.routes';
-// import { storageRoutes } from './modules/storage/storage.routes';
+import { userRoutes } from './modules/user/user.routes';
+import { storageRoutes } from './modules/storage/storage.routes';
+import { itemRoutes } from './modules/item/item.routes';
+import { folderRoutes } from './modules/folder/folder.routes';
 
 // Import middlewares
 import { errorHandler } from './middlewares/error.middleware';
 
-// Import Google Auth Strategy (must be before passport.initialize())
+// Import Google Auth Strategy
 import './modules/auth/googleAuth';
 
 const app: Application = express();
@@ -27,7 +29,7 @@ const app: Application = express();
 // Middleware
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || '*', // Frontend URL or allow all in dev
+    origin: process.env.CLIENT_URL || '*',
     credentials: true,
   })
 );
@@ -43,7 +45,6 @@ app.use(
     saveUninitialized: false,
   })
 );
-app.use(express.json());
 
 // Initialize Passport
 app.use(passport.initialize());
@@ -51,10 +52,12 @@ app.use(passport.session());
 
 // API Routes
 app.use('/api/auth', authRoutes);
-// app.use('/api/users', userRoutes);
-// app.use('/api/storage', storageRoutes);
+app.use('/api/storage', storageRoutes);
+app.use('/api/items', itemRoutes);
+app.use('/api/folders', folderRoutes);
+app.use('/api/users', userRoutes);
 
-// Health check route
+// Health check
 app.get('/', (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
     success: true,

@@ -1,0 +1,232 @@
+{
+    "info": {
+      "name": "Storage Management System API",
+      "_postman_id": "d1a234b7-f927-4e38-bce8-96e8b87c9a88",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Auth - Register",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"username\":\"John Doe\",\"email\":\"john@example.com\",\"password\":\"123456\",\"confirmPassword\":\"123456\"}"
+          },
+          "url": { "raw": "http://localhost:5000/api/auth/register", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "register"] }
+        }
+      },
+      {
+        "name": "Auth - Login",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"email\":\"john@example.com\",\"password\":\"123456\"}"
+          },
+          "url": { "raw": "http://localhost:5000/api/auth/login", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "login"] }
+        }
+      },
+      {
+        "name": "Auth - Forgot Password (Send Code)",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\"email\":\"john@example.com\"}" },
+          "url": { "raw": "http://localhost:5000/api/auth/forgot-password", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "forgot-password"] }
+        }
+      },
+      {
+        "name": "Auth - Verify Code",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": { "mode": "raw", "raw": "{\"email\":\"john@example.com\",\"code\":\"123456\"}" },
+          "url": { "raw": "http://localhost:5000/api/auth/verify-code", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "verify-code"] }
+        }
+      },
+      {
+        "name": "Auth - Reset Password",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Content-Type", "value": "application/json" }],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"email\":\"john@example.com\",\"code\":\"123456\",\"newPassword\":\"newpass123\",\"confirmPassword\":\"newpass123\"}"
+          },
+          "url": { "raw": "http://localhost:5000/api/auth/reset-password", "host": ["localhost"], "port": "5000", "path": ["api", "auth", "reset-password"] }
+        }
+      },
+      {
+        "name": "Profile - Edit Profile",
+        "request": {
+          "method": "PUT",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Authorization", "value": "Bearer {{token}}" }
+          ],
+          "body": { "mode": "raw", "raw": "{\"username\":\"John Updated\",\"image\":\"http://image.url/profile.jpg\"}" },
+          "url": { "raw": "http://localhost:5000/api/users/profile", "host": ["localhost"], "port": "5000", "path": ["api", "users", "profile"] }
+        }
+      },
+      {
+        "name": "Profile - Change Password",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Authorization", "value": "Bearer {{token}}" }
+          ],
+          "body": {
+            "mode": "raw",
+            "raw": "{\"oldPassword\":\"123456\",\"newPassword\":\"newpass123\",\"confirmPassword\":\"newpass123\"}"
+          },
+          "url": { "raw": "http://localhost:5000/api/users/change-password", "host": ["localhost"], "port": "5000", "path": ["api", "users", "change-password"] }
+        }
+      },
+      {
+        "name": "Profile - Delete Account",
+        "request": {
+          "method": "DELETE",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "url": { "raw": "http://localhost:5000/api/users/delete", "host": ["localhost"], "port": "5000", "path": ["api", "users", "delete"] }
+        }
+      },
+      {
+        "name": "Storage - Get Dashboard Stats",
+        "request": {
+          "method": "GET",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "url": { "raw": "http://localhost:5000/api/storage/dashboard", "host": ["localhost"], "port": "5000", "path": ["api", "storage", "dashboard"] }
+        }
+      },
+      {
+        "name": "Folder - Create Folder",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Authorization", "value": "Bearer {{token}}" }
+          ],
+          "body": { "mode": "raw", "raw": "{\"name\":\"My Folder\"}" },
+          "url": { "raw": "http://localhost:5000/api/folders", "host": ["localhost"], "port": "5000", "path": ["api", "folders"] }
+        }
+      },
+      {
+        "name": "Item - Upload File",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "body": {
+            "mode": "formdata",
+            "formdata": [
+              { "key": "folderId", "value": "", "type": "text" },
+              { "key": "name", "value": "file.jpg", "type": "text" },
+              { "key": "file", "type": "file" }
+            ]
+          },
+          "url": { "raw": "http://localhost:5000/api/items/upload", "host": ["localhost"], "port": "5000", "path": ["api", "items", "upload"] }
+        }
+      },
+      {
+        "name": "Item - Favorite",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "url": {
+            "raw": "http://localhost:5000/api/items/{{itemId}}/favorite",
+            "host": ["localhost"],
+            "port": "5000",
+            "path": ["api", "items", "{{itemId}}", "favorite"]
+          }
+        }
+      },
+      {
+        "name": "Item - Rename",
+        "request": {
+          "method": "PUT",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Authorization", "value": "Bearer {{token}}" }
+          ],
+          "body": { "mode": "raw", "raw": "{\"name\":\"New File Name\"}" },
+          "url": {
+            "raw": "http://localhost:5000/api/items/{{itemId}}/rename",
+            "host": ["localhost"],
+            "port": "5000",
+            "path": ["api", "items", "{{itemId}}", "rename"]
+          }
+        }
+      },
+      {
+        "name": "Item - Duplicate",
+        "request": {
+          "method": "POST",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "url": {
+            "raw": "http://localhost:5000/api/items/{{itemId}}/duplicate",
+            "host": ["localhost"],
+            "port": "5000",
+            "path": ["api", "items", "{{itemId}}", "duplicate"]
+          }
+        }
+      },
+      {
+        "name": "Item - Delete",
+        "request": {
+          "method": "DELETE",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "url": {
+            "raw": "http://localhost:5000/api/items/{{itemId}}",
+            "host": ["localhost"],
+            "port": "5000",
+            "path": ["api", "items", "{{itemId}}"]
+          }
+        }
+      },
+      {
+        "name": "Item - Share",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Authorization", "value": "Bearer {{token}}" }
+          ],
+          "body": { "mode": "raw", "raw": "{\"targetUserId\":\"1234567890abcdef12345678\"}" },
+          "url": {
+            "raw": "http://localhost:5000/api/items/{{itemId}}/share",
+            "host": ["localhost"],
+            "port": "5000",
+            "path": ["api", "items", "{{itemId}}", "share"]
+          }
+        }
+      },
+      {
+        "name": "Notes - Add Note",
+        "request": {
+          "method": "POST",
+          "header": [
+            { "key": "Content-Type", "value": "application/json" },
+            { "key": "Authorization", "value": "Bearer {{token}}" }
+          ],
+          "body": { "mode": "raw", "raw": "{\"title\":\"Meeting Notes\",\"content\":\"Discussed project timelines\",\"folder\":null}" },
+          "url": { "raw": "http://localhost:5000/api/notes", "host": ["localhost"], "port": "5000", "path": ["api", "notes"] }
+        }
+      },
+      {
+        "name": "Recent Searches - Get",
+        "request": {
+          "method": "GET",
+          "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+          "url": { "raw": "http://localhost:5000/api/search/recent", "host": ["localhost"], "port": "5000", "path": ["api", "search", "recent"] }
+        }
+      }
+    ],
+    "variable": [
+      { "key": "token", "value": "" },
+      { "key": "itemId", "value": "" }
+    ]
+  }
+  
